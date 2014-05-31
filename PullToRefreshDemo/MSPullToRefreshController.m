@@ -114,7 +114,7 @@
         [UIView setAnimationDuration:0.2];
     }
     _originalScrollViewContentInset = _scrollView.contentInset;
-    _scrollView.contentInset = contentInset;
+//    _scrollView.contentInset = contentInset;
     _scrollView.contentOffset = contentOffset;
 
     if (animated) {
@@ -159,7 +159,7 @@
         [UIView beginAnimations:nil context:NULL];
         [UIView setAnimationDuration:0.2];
     }
-    _scrollView.contentInset = contentInset;
+//    _scrollView.contentInset = contentInset;
 
     if (animated) {
         [UIView commitAnimations];
@@ -226,7 +226,7 @@
                 self.refreshingDirections |= refreshingDirection;
                 self.refreshableDirections &= ~refreshableDirection;
                 _originalScrollViewContentInset = _scrollView.contentInset;
-                _scrollView.contentInset = contentInset;
+//                _scrollView.contentInset = contentInset;
                 if ([_delegate respondsToSelector:@selector(pullToRefreshController:didEngageRefreshDirection:)]) {
                     [_delegate pullToRefreshController:self didEngageRefreshDirection:direction];
                 }
