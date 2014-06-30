@@ -182,15 +182,24 @@
 
     CGFloat refreshableInset = [_delegate pullToRefreshController:self refreshableInsetForDirection:direction];
     CGFloat refreshingInset = [_delegate pullToRefreshController:self refreshingInsetForDirection:direction];
+    CGFloat bottomOffset = [_delegate pullToRefreshControllerBottomOffset:self];
 
     CGFloat contentSizeArea = _scrollView.contentSize.width*_scrollView.contentSize.height;
     CGFloat frameArea = _scrollView.frame.size.width*_scrollView.frame.size.height;
     CGSize adjustedContentSize = contentSizeArea < frameArea ? _scrollView.frame.size : _scrollView.contentSize;
-
+    CGFloat distance = 0.0f;
+    CGFloat requiredDistance = 0.0f;
+    
+    CGFloat maxContentOffset =
+    _scrollView.contentSize.height -
+    CGRectGetHeight(_scrollView.frame) + _scrollView.contentInset.top;
+    
     switch (direction) {
         case MSRefreshDirectionTop:
             refreshingDirection = MSRefreshingDirectionTop;
             refreshableDirection = MSRefreshableDirectionTop;
+            distance = -(_scrollView.contentInset.top + oldOffset.y);
+            requiredDistance = refreshableInset;
             canEngage = oldOffset.y < - refreshableInset - _scrollView.contentInset.top;
             contentInset = UIEdgeInsetsMake(contentInset.top + refreshingInset, contentInset.left, contentInset.bottom, contentInset.right);
             break;
@@ -203,8 +212,28 @@
         case MSRefreshDirectionBottom:
             refreshingDirection = MSRefreshingDirectionBottom;
             refreshableDirection = MSRefreshableDirectionBottom;
-            canEngage = (oldOffset.y + _scrollView.frame.size.height - adjustedContentSize.height  > refreshableInset);
-            contentInset = UIEdgeInsetsMake(contentInset.top, contentInset.left, refreshingInset, contentInset.right);
+            
+//            NSLog(@"maxContentOffset: %f", maxContentOffset);
+//            NSLog(@"co: %f", _scrollView.contentOffset.y);
+//            NSLog(@"cs: %f", _scrollView.contentSize.height);
+//            NSLog(@"h: %f", CGRectGetHeight(_scrollView.frame));
+
+            CGFloat offset = _scrollView.contentInset.top - _scrollView.contentInset.bottom;
+
+            if (_scrollView.contentOffset.y >= maxContentOffset-offset) {
+                
+                CGFloat distanceFromMaxContentOffset =
+                _scrollView.contentOffset.y - maxContentOffset-offset;
+                
+                distance = oldOffset.y - maxContentOffset + offset;
+                requiredDistance = refreshableInset - bottomOffset;
+                canEngage = distance > requiredDistance;
+                contentInset = UIEdgeInsetsMake(contentInset.top, contentInset.left, refreshingInset, contentInset.right);
+                
+//                NSLog(@"distance: %f", distance);
+//                NSLog(@"requiredDistance: %f", requiredDistance);
+            }
+            
             break;
         case MSRefreshDirectionRight:
             refreshingDirection = MSRefreshingDirectionRight;
@@ -214,6 +243,16 @@
             break;
         default:
             break;
+    }
+    
+    if ([_delegate respondsToSelector:@selector(pullToRefreshController:percentEngaged:direction:)]) {
+        
+        if (ABS(distance) <= .5f) {
+            distance = 0.0f;
+        }
+        
+        CGFloat percent = requiredDistance != 0.0f ? distance / requiredDistance : 0.0f;
+        [_delegate pullToRefreshController:self percentEngaged:percent direction:direction];
     }
 
     if (!(self.refreshingDirections & refreshingDirection)) {

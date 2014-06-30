@@ -131,6 +131,8 @@ typedef enum {
  */
 - (CGFloat) pullToRefreshController:(MSPullToRefreshController *) controller refreshableInsetForDirection:(MSRefreshDirection) direction;
 
+- (CGFloat) pullToRefreshControllerBottomOffset:(MSPullToRefreshController *)controller;
+
 /*
  * inset that the direction retracts back to after refresh started
  */
@@ -144,6 +146,8 @@ typedef enum {
  * offset defined in the respective MSInflectionOffsets.
  */
 - (void) pullToRefreshController:(MSPullToRefreshController *) controller canEngageRefreshDirection:(MSRefreshDirection) direction;
+
+- (void) pullToRefreshController:(MSPullToRefreshController *) controller percentEngaged:(CGFloat)percentEngaged direction:(MSRefreshDirection) direction;
 
 /*
  * informs the delegate that lifting your finger will NOT trigger a refresh
